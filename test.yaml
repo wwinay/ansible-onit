@@ -1,0 +1,11 @@
+- name: "Backup of necessary file before patching of server."
+  user: root
+  #sudo: yes
+  hosts: all
+  tasks:
+    - name: "Gather lsof"
+      command: lsof
+      register: lsof_command
+
+    - name: "Save lsof log"
+      copy content="{{ lsof_command.stdout }}" dest="/root/lsof.log"

@@ -1,0 +1,22 @@
+- name: "Install vmtoolsd"
+  #sudo: yes
+  hosts: all
+  user: root
+  tasks:
+    - name: installing Vmwaretools
+      yum:
+        name: open-vm-tools
+        state: present
+
+    - service:
+        name: vmtoolsd
+        state: started
+        enabled: yes  
+   
+    - name: Chech vmtoolsd status
+      command: service vmtoolsd status
+      register: vmtoolsd_status
+      
+    - name: Debug
+      debug:
+        var: vmtoolsd_status

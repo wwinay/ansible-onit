@@ -1,0 +1,53 @@
+- name: "Installing server patches"
+  user: root
+  #sudo: yes
+  hosts: all
+  tasks:
+    - include: back_before_patch_onit.yaml
+ 
+    - name: "upgrade OS"
+      yum: 
+        update_cache: yes
+        name: '*'
+        state: latest
+   
+    - name: Rebooting server
+      shell: nohup bash -c "sleep 3s && shutdown -r now" &
+
+    - name: Wait for the server to reboot
+      sudo: no
+      local_action: wait_for host="{{inventory_hostname}}" search_regex=OpenSSH port=22 timeout=300 delay=20 connect_timeout=10
+
+    - shell: uptime
+      register: upt
+
+    - name: Uptime of server
+      debug: 
+        var: upt 
+
+    #- include: httpd-check.yaml
+
+    - shell: uname -a
+      register: unm
+
+    - name: Kernel version after patching
+      debug:
+        var: unm
+
+    - name: Installing VMware-tools
+      yum:
+        name: open-vm-tools
+        state: present
+
+    - service:
+        name: vmtoolsd
+        state: started
+        enabled: yes  
+   
+    - name: Chech vmtoolsd status
+      command: service vmtoolsd status
+      register: vmtoolsd_status
+      
+    - name: Debug
+      debug:
+        var: vmtoolsd_status

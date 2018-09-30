@@ -1,0 +1,35 @@
+- name: "install patches"
+  user: root
+  #sudo: yes
+  hosts: all
+  tasks:
+    - name: "upgrade OS"
+      yum: 
+        update_cache: yes
+        name: '*'
+        state: latest
+   
+    - name: restart system to reboot to newest kernel
+      shell: "sleep 5 && reboot"
+      async: 1
+      poll: 0
+
+    - name: wait for 10 seconds
+      pause:
+        seconds: 10
+
+    - name: wait for the system to reboot
+      wait_for_connection:
+        connect_timeout: 20
+        sleep: 5
+        delay: 5
+        timeout: 60
+
+    - name: Uptime of the machine
+      shell: /usr/bin/uptime
+      register: uptime
+
+    - debug: var={{ item }}
+      with_items:
+        - uptime.stdout
+    

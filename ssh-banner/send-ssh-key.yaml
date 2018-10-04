@@ -1,0 +1,9 @@
+- name: "Configuring ssh key on remote host."
+  user: root
+  #sudo: yes
+  hosts: all
+  tasks:
+    - name: Appending the key inside deploy user's authorized_keys file
+      lineinfile:
+        path: /home/deploy/.ssh/authorized_keys
+	line: "key here"

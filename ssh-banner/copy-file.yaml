@@ -1,0 +1,32 @@
+- name: "Setting up the SSH Banner."
+  user: root
+  #sudo: yes
+  hosts: all
+  tasks:
+    - name: Copying ssh_banner template to remote
+      copy:
+        src: ssh_banner
+        dest: /etc/ssh/
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Making changes in sshd_conf file for Banner
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        line: Banner /etc/ssh/ssh_banner
+        insertafter: Banner.*
+
+    - name: Restarting sshd
+      service:
+        name: sshd
+        state: restarted
+        enabled: yes
+        
+    - name: SSHD status
+      command: service sshd restart
+      register: sshd_status
+
+    - name: Debug
+      debug:
+        var: sshd_status
